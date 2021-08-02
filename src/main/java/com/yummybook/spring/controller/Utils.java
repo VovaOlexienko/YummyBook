@@ -18,11 +18,4 @@ public class Utils {
         }
         return Optional.of(pageNumbers);
     }
-
-    public static long calcAverageRating(long totalRating, long totalVoteCount) {
-        if (totalRating == 0 || totalVoteCount == 0) {
-            return 0;
-        }
-        return totalRating / totalVoteCount;
-    }
 }

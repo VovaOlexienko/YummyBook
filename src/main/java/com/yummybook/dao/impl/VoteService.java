@@ -1,5 +1,9 @@
 package com.yummybook.dao.impl;
 
+import com.yummybook.dao.VoteDao;
+import com.yummybook.domain.Book;
+import com.yummybook.domain.User;
+import com.yummybook.domain.Vote;
 import com.yummybook.spring.repository.VoteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -7,8 +11,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.yummybook.dao.VoteDao;
-import com.yummybook.domain.Vote;
 
 import java.util.List;
 
@@ -20,8 +22,8 @@ public class VoteService implements VoteDao {
     private VoteRepository voteRepository;
 
     @Override
-    public Vote getVote(long bookId, String username) {
-        return voteRepository.findByBookIdAndUsername(bookId, username);
+    public Vote getVote(Book book, User user) {
+        return voteRepository.findByBookAndUser(book, user);
     }
 
     @Override

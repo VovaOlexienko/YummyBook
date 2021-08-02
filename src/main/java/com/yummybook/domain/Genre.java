@@ -1,38 +1,29 @@
 package com.yummybook.domain;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.SelectBeforeUpdate;
+import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 @Entity
-@EqualsAndHashCode(of = "id")
-@Table(catalog = "library")
-@DynamicUpdate
-@DynamicInsert
-@SelectBeforeUpdate
 @Getter
 @Setter
+@NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
 public class Genre {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ToString.Include
+    @EqualsAndHashCode.Include
+    @NotBlank
     private String name;
 
     @Basic(fetch = FetchType.LAZY)
     @OneToMany(mappedBy = "genre")
     private List<Book> books;
-
-
-    @Override
-    public String toString() {
-        return name;
-    }
 }

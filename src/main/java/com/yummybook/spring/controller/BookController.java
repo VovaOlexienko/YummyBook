@@ -1,9 +1,7 @@
 package com.yummybook.spring.controller;
 
 import com.yummybook.dao.*;
-import com.yummybook.domain.Book;
-import com.yummybook.domain.Genre;
-import com.yummybook.domain.Vote;
+import com.yummybook.domain.*;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -37,6 +35,8 @@ public class BookController {
     PublisherDao publisherDao;
     @Autowired
     VoteDao voteDao;
+    @Autowired
+    UserDao userDao;
 
     @RequestMapping(value = {"", "/", "/book"})
     public String main(Model model,
@@ -88,6 +88,9 @@ public class BookController {
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @RequestMapping(value = {"/saveBook"})
     public RedirectView saveBook(@ModelAttribute Book book,
+                                 @RequestParam("totalRating") Optional<Long> totalRating,
+                                 @RequestParam("totalVoteCount") Optional<Long> totalVoteCount,
+                                 @RequestParam("avgRating") Optional<Integer> avgRating,
                                  @RequestParam("imageParam") Optional<MultipartFile> image,
                                  @RequestParam("contentParam") Optional<MultipartFile> content,
                                  @RequestParam("authorParam") Optional<Long> authorId,
@@ -97,6 +100,16 @@ public class BookController {
             book.setGenre(genreDao.get(genreId.get()));
             book.setAuthor(authorDao.get(authorId.get()));
             book.setPublisher(publisherDao.get(publisherId.get()));
+            if(totalRating.orElse(0L) == 0){
+                book.setRating(new Rating());
+            } else {
+                Book oldBook = bookDao.get(book.getId());
+                if (oldBook == null) {
+                    log.log(Level.ALL, "Unable to update book with id " + book.getId() + " because there is no such book in database");
+                    return new RedirectView("/error");
+                }
+                book.setRating(new Rating(oldBook.getRating().getTotalRating(), oldBook.getRating().getTotalVoteCount(), oldBook.getRating().getAvgRating()));
+            }
             try {
                 Book temp = bookDao.get(book.getId());
                 if (temp != null && image.get().isEmpty()) {
@@ -164,23 +177,24 @@ public class BookController {
                        @RequestParam("vote") Optional<Long> vote) {
         if (bookId.isPresent() && vote.isPresent() && vote.get() > 0 && vote.get() < 6) {
             String username = SecurityContextHolder.getContext().getAuthentication().getName();
-            Vote userVote = voteDao.getVote(bookId.get(), username);
+            User user = userDao.findByUsername(username);
             Book book = bookDao.get(bookId.get());
-            if (book != null) {
+            Vote userVote = voteDao.getVote(book, user);
+            if (book != null && user != null) {
                 long voteValue = vote.get();
                 long lastVoteValue = 0;
-                long voteCount = book.getTotalVoteCount();
+                long voteCount = book.getRating().getTotalVoteCount();
 
                 if (userVote == null) {
-                    voteDao.save(new Vote((int) voteValue, bookId.get(), username));
+                    voteDao.save(new Vote(-1L, (int) voteValue, book, user));
                     voteCount++;
                 } else {
                     lastVoteValue = userVote.getValue();
-                    voteDao.save(new Vote(userVote.getId(), (int) voteValue, bookId.get(), username));
+                    voteDao.save(new Vote(userVote.getId(), (int) voteValue, book, user));
                 }
 
-                long newRating = book.getTotalRating() + voteValue - lastVoteValue;
-                int newAvgRating = (int) Utils.calcAverageRating(newRating, voteCount);
+                long newRating = book.getRating().getTotalRating() + voteValue - lastVoteValue;
+                int newAvgRating = (int) Rating.calcAverageRating(newRating, voteCount);
 
                 bookDao.updateRating(newRating, voteCount, newAvgRating, bookId.get());
             } else {

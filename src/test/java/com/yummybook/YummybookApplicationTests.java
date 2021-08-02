@@ -9,5 +9,4 @@ class YummybookApplicationTests {
     @Test
     void contextLoads() {
     }
-
 }

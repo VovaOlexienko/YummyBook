@@ -1,55 +1,44 @@
 package com.yummybook.domain;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.SelectBeforeUpdate;
+import lombok.*;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 
 @Entity
-@Table(catalog = "library")
-@DynamicUpdate
-@DynamicInsert
-@SelectBeforeUpdate
 @Setter
 @Getter
-@EqualsAndHashCode(of = "username")
+@NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    @NotEmpty
+    @ToString.Include
+    @EqualsAndHashCode.Include
+    @NotBlank
     private String username;
 
-    @NotNull
     @NotEmpty
+    @EqualsAndHashCode.Include
+    @NotBlank
     private String mail;
 
-    @NotNull
-    @NotEmpty
+    @NotBlank
     private String password;
 
     private int enabled = 1;
-
-    public User() {
-    }
 
     public User(String username, String mail, String password) {
         this.username = username;
         this.mail = mail;
         this.password = password;
-    }
-
-    @Override
-    public String toString() {
-        return username;
     }
 }

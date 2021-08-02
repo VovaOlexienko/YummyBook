@@ -1,47 +1,34 @@
 package com.yummybook.domain;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.SelectBeforeUpdate;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
-@Table(catalog = "library")
-@EqualsAndHashCode(of = "id")
 @Getter
 @Setter
-@DynamicUpdate
-@DynamicInsert
-@SelectBeforeUpdate
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
 public class Vote {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long id;
 
+    @ToString.Include
     private int value;
 
-    @Column(name = "book_id")
-    private Long bookId;
+    @ToString.Include
+    @EqualsAndHashCode.Include
+    @ManyToOne
+    @JoinColumn
+    private Book book;
 
-    private String username;
-
-    public Vote(){}
-
-    public Vote(Long id, int value, Long bookId, String username){
-        this.id = id;
-        this.value = value;
-        this.bookId = bookId;
-        this.username = username;
-    }
-
-    public Vote(int value, Long bookId, String username) {
-        this.value = value;
-        this.bookId = bookId;
-        this.username = username;
-    }
+    @ToString.Include
+    @EqualsAndHashCode.Include
+    @ManyToOne
+    @JoinColumn
+    private User user;
 }

@@ -1,40 +1,32 @@
 package com.yummybook.domain;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.SelectBeforeUpdate;
+import lombok.*;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 
 @Entity
-@Table(catalog = "library", name = "user_roles")
-@DynamicUpdate
-@DynamicInsert
-@SelectBeforeUpdate
+@Table(name = "user_roles")
 @Setter
 @Getter
-@EqualsAndHashCode(of = "username")
+@NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
 public class UserRole {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    @NotEmpty
+    @ToString.Include
+    @EqualsAndHashCode.Include
+    @NotBlank
     private String username;
 
-    @NotNull
-    @NotEmpty
+    @ToString.Include
+    @EqualsAndHashCode.Include
+    @NotBlank
     private String role = "ROLE_USER";
-
-    public UserRole() {
-    }
 
     public UserRole(String username) {
         this.username = username;
@@ -43,10 +35,5 @@ public class UserRole {
     public UserRole(String username, String role) {
         this.username = username;
         this.role = role;
-    }
-
-    @Override
-    public String toString() {
-        return username + " " + role;
     }
 }
